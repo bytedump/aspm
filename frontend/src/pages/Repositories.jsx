@@ -1,0 +1,110 @@
+import { useState, useEffect } from 'react'
+import Card from '../components/Card'
+import { getAlerts } from '../services/api'
+import { useDemoMode, demoDelay } from '../context/DemoContext'
+import { demoRepositories } from '../data/demoData'
+
+const severityColors = {
+  CRITICAL: '#EF4444',
+  HIGH: '#F97316',
+  MEDIUM: '#4F8EF7',
+  LOW: '#22C55E',
+  INFO: '#3B82F6',
+  UNKNOWN: '#64748B',
+}
+
+export default function Repositories() {
+  const [repos, setRepos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const { isDemoMode } = useDemoMode()
+
+  useEffect(() => {
+    // MODO DEMO: sem chamada de API
+    if (isDemoMode) {
+      setLoading(true)
+      demoDelay().then(() => { setRepos(demoRepositories); setLoading(false) })
+      return
+    }
+
+    setLoading(true)
+    getAlerts()
+      .then(res => {
+        const grouped = {}
+        for (const alert of res.data) {
+          const name = alert.repository || 'desconhecido'
+          if (!grouped[name]) {
+            grouped[name] = { name, total: 0, severities: {} }
+          }
+          grouped[name].total += 1
+          const sev = (alert.severity_adjusted || alert.severity || 'UNKNOWN').toUpperCase()
+          grouped[name].severities[sev] = (grouped[name].severities[sev] || 0) + 1
+        }
+        setRepos(Object.values(grouped).sort((a, b) => b.total - a.total))
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [isDemoMode])
+
+  return (
+    <div>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: "'Space Grotesk', serif", fontSize: '24px', color: '#E2E8F0', letterSpacing: '0.05em', marginBottom: '4px' }}>
+          Repositórios
+        </h1>
+        <p style={{ color: '#64748B', fontFamily: 'Raleway', fontSize: '13px' }}>
+          Inventário de ativos monitorados e alertas por severidade
+        </p>
+      </div>
+
+      {loading ? (
+        <div style={{ color: '#64748B', fontFamily: 'Raleway', letterSpacing: '0.2em' }}>CARREGANDO...</div>
+      ) : repos.length === 0 ? (
+        <Card>
+          <div style={{ color: '#64748B', textAlign: 'center', padding: '32px', fontFamily: 'Raleway' }}>
+            Nenhum repositório com alertas ainda.
+          </div>
+        </Card>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+          {repos.map(repo => (
+            <Card key={repo.name} hoverable>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <div style={{
+                  fontFamily: 'JetBrains Mono',
+                  fontSize: '14px',
+                  color: '#E2E8F0',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>{repo.name}</div>
+                <div style={{
+                  fontFamily: "'Space Grotesk', serif",
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#4F8EF7',
+                  flexShrink: 0,
+                  marginLeft: '12px',
+                }}>{repo.total}</div>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {Object.entries(repo.severities).map(([sev, count]) => (
+                  <span key={sev} style={{
+                    background: `${severityColors[sev] || '#64748B'}20`,
+                    color: severityColors[sev] || '#64748B',
+                    border: `1px solid ${severityColors[sev] || '#64748B'}40`,
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '10px',
+                    fontFamily: 'Raleway',
+                    fontWeight: '600',
+                    letterSpacing: '0.06em',
+                  }}>{sev} {count}</span>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

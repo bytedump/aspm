@@ -1,0 +1,82 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary: #060810;
+  --bg-card: #0C1220;
+  --bg-hover: #131D35;
+  --gold: #4F8EF7;
+  --gold-light: #7EB0FF;
+  --gold-dark: #2563EB;
+  --gold-muted: #64748B;
+  --text-primary: #E2E8F0;
+  --text-secondary: #64748B;
+  --border: #1E2A42;
+  --border-active: #4F8EF7;
+  --font-display: 'Space Grotesk', serif;
+  --font-heading: 'Raleway', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-card: 16px;
+  --radius-element: 10px;
+  --radius-badge: 20px;
+  --shadow-card: 0 4px 24px rgba(79, 142, 247, 0.08);
+  --shadow-hover: 0 8px 32px rgba(79, 142, 247, 0.16);
+  --transition: all 0.2s ease;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--gold-light);
+}
+
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #4F8EF7, transparent);
+  border: none;
+  margin: 0;
+}
